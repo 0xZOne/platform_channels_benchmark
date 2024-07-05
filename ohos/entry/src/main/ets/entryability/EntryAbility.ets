@@ -14,6 +14,7 @@
 */
 
 import {
+  Any,
   BasicMessageChannel,
   BinaryCodec,
   ByteBuffer,
@@ -23,6 +24,26 @@ import {
   TaskQueueOptions
 } from '@ohos/flutter_ohos';
 import { GeneratedPluginRegistrant } from '../plugins/GeneratedPluginRegistrant';
+
+export class CustomStandardMessageCodec extends StandardMessageCodec {
+  static INSTANCE = new CustomStandardMessageCodec();
+
+  private constructor() {
+    super();
+  }
+
+  encodeMessage(message: Any): ArrayBuffer {
+    console.time('encodeMessage');
+    let buffer = super.encodeMessage(message)
+    console.timeLog('encodeMessage', `ByteBuffer: ${buffer.byteLength}`);
+    console.timeEnd('encodeMessage');
+    return buffer
+  }
+
+  decodeMessage(message: ArrayBuffer | null): Any {
+    return super.decodeMessage(message)
+  }
+}
 
 export default class EntryAbility extends FlutterAbility {
   private byteBufferCache: ByteBuffer | null = null;
@@ -34,7 +55,7 @@ export default class EntryAbility extends FlutterAbility {
     const reset = new BasicMessageChannel<Object>(
       flutterEngine.getDartExecutor(),
       "dev.flutter.echo.reset",
-      StandardMessageCodec.INSTANCE
+      CustomStandardMessageCodec.INSTANCE
     );
     reset.setMessageHandler({
       onMessage: (_, __) => {
@@ -45,7 +66,7 @@ export default class EntryAbility extends FlutterAbility {
     const basicStandard = new BasicMessageChannel<Object>(
       flutterEngine.getDartExecutor(),
       "dev.flutter.echo.basic.standard",
-      StandardMessageCodec.INSTANCE
+      CustomStandardMessageCodec.INSTANCE
     );
     basicStandard.setMessageHandler({
       onMessage: (message, reply) => {
@@ -69,7 +90,7 @@ export default class EntryAbility extends FlutterAbility {
     const backgroundStandard = new BasicMessageChannel<Object>(
         flutterEngine.getDartExecutor(),
         "dev.flutter.echo.background.standard",
-        StandardMessageCodec.INSTANCE,
+        CustomStandardMessageCodec.INSTANCE,
         taskQueue
     );
 

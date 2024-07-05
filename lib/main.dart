@@ -306,8 +306,8 @@ class _MyAppState extends State<MyApp> {
   int _itemCounts = 1500; // list对象的长度
   int _runCounts = 100; // 测试用例运行次数
 
-  final List<int> _dropdownForStringLength = [0, 50, 100, 512, 1024, 2048, 4096, 8192];
-  final List<int> _dropdownForItemCount = [5, 10, 100, 500, 1500, 2000, 2500];
+  final List<int> _dropdownForStringLength = [0, 50, 100, 512, 1024, 2048, 4096, 8192, 9216, 10240];
+  final List<int> _dropdownForItemCount = [1, 5, 10, 100, 500, 1500, 2000, 2500];
   final List<int> _dropdownForRunCount = [1, 10, 100, 1000, 2000];
 
   void _handleButtonClick() async {
