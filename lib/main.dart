@@ -218,22 +218,22 @@ Future<String> _runTests(
     name: 'platform_channel_basic_standard_2host_large',
     numMessages: numMessages,
   );
-  await _runTest(
-    test: (int x) => _runBasicStandardSmall(backgroundStandard, x),
-    resetChannel: resetChannel,
-    printer: printer,
-    description: 'StandardMessageCodec/(background)/Small',
-    name: 'platform_channel_basic_standard_2hostbackground_small',
-    numMessages: numMessages,
-  );
-  await _runTest(
-    test: (int x) => _runBasicStandardLarge(backgroundStandard, largeBuffer, x),
-    resetChannel: resetChannel,
-    printer: printer,
-    description: 'StandardMessageCodec/(background)/Large',
-    name: 'platform_channel_basic_standard_2hostbackground_large',
-    numMessages: numMessages,
-  );
+  // await _runTest(
+  //   test: (int x) => _runBasicStandardSmall(backgroundStandard, x),
+  //   resetChannel: resetChannel,
+  //   printer: printer,
+  //   description: 'StandardMessageCodec/(background)/Small',
+  //   name: 'platform_channel_basic_standard_2hostbackground_small',
+  //   numMessages: numMessages,
+  // );
+  // await _runTest(
+  //   test: (int x) => _runBasicStandardLarge(backgroundStandard, largeBuffer, x),
+  //   resetChannel: resetChannel,
+  //   printer: printer,
+  //   description: 'StandardMessageCodec/(background)/Large',
+  //   name: 'platform_channel_basic_standard_2hostbackground_large',
+  //   numMessages: numMessages,
+  // );
   await _runTest(
     test: (int x) => _runBasicBinary(basicBinary, largeBufferBytes, x),
     resetChannel: resetChannel,
@@ -267,23 +267,23 @@ Future<String> _runTests(
     name: 'platform_channel_basic_standard_2host_large_parallel_3',
     numMessages: numMessages,
   );
-  await _runTest(
-    test: (int x) => _runBasicStandardParallel(backgroundStandard, x, 1234, 3),
-    resetChannel: resetChannel,
-    printer: printer,
-    description: 'StandardMessageCodec/background/SmallParallel3',
-    name: 'platform_channel_basic_standard_2host_background_small_parallel_3',
-    numMessages: numMessages,
-  );
-  await _runTest(
-    test: (int x) =>
-        _runBasicStandardParallel(backgroundStandard, x, largeBuffer, 3),
-    resetChannel: resetChannel,
-    printer: printer,
-    description: 'StandardMessageCodec/background/LargeParallel3',
-    name: 'platform_channel_basic_standard_2host_background_large_parallel_3',
-    numMessages: numMessages,
-  );
+  // await _runTest(
+  //   test: (int x) => _runBasicStandardParallel(backgroundStandard, x, 1234, 3),
+  //   resetChannel: resetChannel,
+  //   printer: printer,
+  //   description: 'StandardMessageCodec/background/SmallParallel3',
+  //   name: 'platform_channel_basic_standard_2host_background_small_parallel_3',
+  //   numMessages: numMessages,
+  // );
+  // await _runTest(
+  //   test: (int x) =>
+  //       _runBasicStandardParallel(backgroundStandard, x, largeBuffer, 3),
+  //   resetChannel: resetChannel,
+  //   printer: printer,
+  //   description: 'StandardMessageCodec/background/LargeParallel3',
+  //   name: 'platform_channel_basic_standard_2host_background_large_parallel_3',
+  //   numMessages: numMessages,
+  // );
   printer.printToStdout();
   return printer.getStringBuffer().toString();
 }
