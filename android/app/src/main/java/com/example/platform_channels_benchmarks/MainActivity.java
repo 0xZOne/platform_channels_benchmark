@@ -1,6 +1,5 @@
 package com.example.platform_channels_benchmarks;
 
-import android.os.SystemClock;
 import android.util.Log;
 
 import io.flutter.embedding.android.FlutterActivity;
@@ -24,11 +23,11 @@ public class MainActivity extends FlutterActivity {
 
         @Override
         public ByteBuffer encodeMessage(Object message) {
-            long startTime = SystemClock.elapsedRealtime();
+            long startTime = System.nanoTime();
             ByteBuffer buffer = super.encodeMessage(message);
-            long endTime = SystemClock.elapsedRealtime();
-            long elapsedTime = endTime - startTime;
-            Log.e("xlog", "encodeMessage: " + elapsedTime + " ms. ByteBuffer: " + buffer.capacity());
+            long endTime = System.nanoTime();
+            long duration = (endTime - startTime) / 1_000;
+            Log.e("xlog", "encodeMessage: " + duration + " µs. ByteBuffer: " + buffer.capacity());
             return buffer;
         }
 
