@@ -168,9 +168,9 @@ Future<void> _runTest({
 
 Future<String> _runTests(
     int itemCount, int stringLength, int numMessages) async {
-  if (kDebugMode) {
-    return "Must be run in profile mode! Use 'flutter run --profile'.";
-  }
+  // if (kDebugMode) {
+  //   return "Must be run in profile mode! Use 'flutter run --profile'.";
+  // }
 
   const BasicMessageChannel<Object?> resetChannel =
       BasicMessageChannel<Object?>(
@@ -218,22 +218,22 @@ Future<String> _runTests(
     name: 'platform_channel_basic_standard_2host_large',
     numMessages: numMessages,
   );
-  // await _runTest(
-  //   test: (int x) => _runBasicStandardSmall(backgroundStandard, x),
-  //   resetChannel: resetChannel,
-  //   printer: printer,
-  //   description: 'StandardMessageCodec/(background)/Small',
-  //   name: 'platform_channel_basic_standard_2hostbackground_small',
-  //   numMessages: numMessages,
-  // );
-  // await _runTest(
-  //   test: (int x) => _runBasicStandardLarge(backgroundStandard, largeBuffer, x),
-  //   resetChannel: resetChannel,
-  //   printer: printer,
-  //   description: 'StandardMessageCodec/(background)/Large',
-  //   name: 'platform_channel_basic_standard_2hostbackground_large',
-  //   numMessages: numMessages,
-  // );
+  await _runTest(
+    test: (int x) => _runBasicStandardSmall(backgroundStandard, x),
+    resetChannel: resetChannel,
+    printer: printer,
+    description: 'StandardMessageCodec/(background)/Small',
+    name: 'platform_channel_basic_standard_2hostbackground_small',
+    numMessages: numMessages,
+  );
+  await _runTest(
+    test: (int x) => _runBasicStandardLarge(backgroundStandard, largeBuffer, x),
+    resetChannel: resetChannel,
+    printer: printer,
+    description: 'StandardMessageCodec/(background)/Large',
+    name: 'platform_channel_basic_standard_2hostbackground_large',
+    numMessages: numMessages,
+  );
   await _runTest(
     test: (int x) => _runBasicBinary(basicBinary, largeBufferBytes, x),
     resetChannel: resetChannel,
@@ -267,23 +267,23 @@ Future<String> _runTests(
     name: 'platform_channel_basic_standard_2host_large_parallel_3',
     numMessages: numMessages,
   );
-  // await _runTest(
-  //   test: (int x) => _runBasicStandardParallel(backgroundStandard, x, 1234, 3),
-  //   resetChannel: resetChannel,
-  //   printer: printer,
-  //   description: 'StandardMessageCodec/background/SmallParallel3',
-  //   name: 'platform_channel_basic_standard_2host_background_small_parallel_3',
-  //   numMessages: numMessages,
-  // );
-  // await _runTest(
-  //   test: (int x) =>
-  //       _runBasicStandardParallel(backgroundStandard, x, largeBuffer, 3),
-  //   resetChannel: resetChannel,
-  //   printer: printer,
-  //   description: 'StandardMessageCodec/background/LargeParallel3',
-  //   name: 'platform_channel_basic_standard_2host_background_large_parallel_3',
-  //   numMessages: numMessages,
-  // );
+  await _runTest(
+    test: (int x) => _runBasicStandardParallel(backgroundStandard, x, 1234, 3),
+    resetChannel: resetChannel,
+    printer: printer,
+    description: 'StandardMessageCodec/background/SmallParallel3',
+    name: 'platform_channel_basic_standard_2host_background_small_parallel_3',
+    numMessages: numMessages,
+  );
+  await _runTest(
+    test: (int x) =>
+        _runBasicStandardParallel(backgroundStandard, x, largeBuffer, 3),
+    resetChannel: resetChannel,
+    printer: printer,
+    description: 'StandardMessageCodec/background/LargeParallel3',
+    name: 'platform_channel_basic_standard_2host_background_large_parallel_3',
+    numMessages: numMessages,
+  );
   printer.printToStdout();
   return printer.getStringBuffer().toString();
 }
@@ -303,8 +303,8 @@ class _MyAppState extends State<MyApp> {
   String result = "Result will be shown here";
 
   int _stringLength = 512; // list中字符串的长度
-  int _itemCounts = 1500; // list对象的长度
-  int _runCounts = 100; // 测试用例运行次数
+  int _itemCounts = 100; // list对象的长度
+  int _runCounts = 10; // 测试用例运行次数
 
   final List<int> _dropdownForStringLength = [0, 50, 100, 512, 1024, 2048, 4096, 8192, 9216, 10240];
   final List<int> _dropdownForItemCount = [1, 5, 10, 100, 500, 1500, 2000, 2500];

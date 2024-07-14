@@ -15,18 +15,24 @@
 
 import {
   Any,
+  ApplicationInfoLoader,
   BasicMessageChannel,
   BinaryCodec,
   ByteBuffer,
   FlutterAbility,
   FlutterEngine,
+  SendableMessageHandler,
   StandardMessageCodec,
+  SendableStandardMessageCodec,
   TaskQueueOptions
 } from '@ohos/flutter_ohos';
+import { Reply } from '@ohos/flutter_ohos/src/main/ets/plugin/common/BasicMessageChannel';
+import { MessageHandler } from '@ohos/flutter_ohos/src/main/ets/plugin/common/BasicMessageChannel';
 import { GeneratedPluginRegistrant } from '../plugins/GeneratedPluginRegistrant';
 
-export class CustomStandardMessageCodec extends StandardMessageCodec {
-  static INSTANCE = new CustomStandardMessageCodec();
+@Sendable
+export class CustomStandardMessageCodec extends SendableStandardMessageCodec {
+  static INSTANCE: CustomStandardMessageCodec = new CustomStandardMessageCodec();
 
   private constructor() {
     super();
@@ -52,10 +58,13 @@ export default class EntryAbility extends FlutterAbility {
     super.configureFlutterEngine(flutterEngine)
     GeneratedPluginRegistrant.registerWith(flutterEngine)
 
+    let applicationInfo = ApplicationInfoLoader.load(this.context);
+    console.log('xlog, isDebugMode = ' + applicationInfo.isDebugMode)
+
     const reset = new BasicMessageChannel<Object>(
       flutterEngine.getDartExecutor(),
       "dev.flutter.echo.reset",
-      CustomStandardMessageCodec.INSTANCE
+      StandardMessageCodec.INSTANCE
     );
     reset.setMessageHandler({
       onMessage: (_, __) => {
@@ -66,10 +75,11 @@ export default class EntryAbility extends FlutterAbility {
     const basicStandard = new BasicMessageChannel<Object>(
       flutterEngine.getDartExecutor(),
       "dev.flutter.echo.basic.standard",
-      CustomStandardMessageCodec.INSTANCE
+      StandardMessageCodec.INSTANCE
     );
     basicStandard.setMessageHandler({
       onMessage: (message, reply) => {
+        console.log('xlog, basicStandard ~~')
         reply.reply(message);
       }
     })
@@ -94,10 +104,13 @@ export default class EntryAbility extends FlutterAbility {
         taskQueue
     );
 
-    backgroundStandard.setMessageHandler({
-      onMessage: (message, reply) => {
+    @Sendable
+    class ArrayBufferMessageHandler implements SendableMessageHandler<Object> {
+      onMessage(message: Object, reply: Reply<Object>): void {
+        console.log('xlog, ArrayBufferMessageHandler#onMessage is called in the background')
         reply.reply(message);
       }
-    })
+    }
+    backgroundStandard.setMessageHandler(new ArrayBufferMessageHandler)
   }
 }
