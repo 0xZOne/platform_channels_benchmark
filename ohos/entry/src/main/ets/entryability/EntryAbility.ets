@@ -16,15 +16,22 @@
 import {
   Any,
   ApplicationInfoLoader,
+  BackgroundMethodChannel,
+  BackgroundBasicMessageChannel,
   BasicMessageChannel,
   BinaryCodec,
-  ByteBuffer,
   FlutterAbility,
   FlutterEngine,
+  MethodCall,
+  MethodChannel,
+  MethodResult,
+  SendableMethodCallHandler,
   SendableMessageHandler,
   StandardMessageCodec,
   SendableStandardMessageCodec,
-  TaskQueueOptions
+  TaskQueueOptions,
+  SendableStandardMethodCodec,
+  MethodCallHandler
 } from '@ohos/flutter_ohos';
 import { Reply } from '@ohos/flutter_ohos/src/main/ets/plugin/common/BasicMessageChannel';
 import { MessageHandler } from '@ohos/flutter_ohos/src/main/ets/plugin/common/BasicMessageChannel';
@@ -52,56 +59,79 @@ export class CustomStandardMessageCodec extends SendableStandardMessageCodec {
 }
 
 export default class EntryAbility extends FlutterAbility {
-  private byteBufferCache: ByteBuffer | null = null;
+  private methodChannel: BackgroundMethodChannel | null = null;
+  private reset: BasicMessageChannel<Object> | null = null;
+  private basicStandard: BasicMessageChannel<Object> | null = null;
+  private basicBinary: BasicMessageChannel<Object> | null = null;
+  private backgroundStandard: BackgroundBasicMessageChannel<Object> | null = null;
 
   configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
     GeneratedPluginRegistrant.registerWith(flutterEngine)
 
     let applicationInfo = ApplicationInfoLoader.load(this.context);
-    console.log('xlog, isDebugMode = ' + applicationInfo.isDebugMode)
+    console.log('xlog, isDebugMode = ' + applicationInfo.isDebugMode);
 
-    const reset = new BasicMessageChannel<Object>(
+    @Sendable
+    class PlatformStringCallback implements SendableMethodCallHandler {
+      onMethodCall(call: MethodCall, result: MethodResult): void {
+        if (call.method == "getPlatformString") {
+          console.log('xlog, in onMethodCall');
+          result.success("Hi, there! I'm from ArkUI ^_^ ")
+        } else {
+          result.notImplemented()
+        }
+      }
+    }
+    const taskQueue1 = flutterEngine.getDartExecutor().makeBackgroundTaskQueue(new TaskQueueOptions());
+    this.methodChannel = new BackgroundMethodChannel(
+      flutterEngine.getDartExecutor(),
+      "test/get_platform_name",
+      SendableStandardMethodCodec.INSTANCE,
+      taskQueue1
+    );
+    this.methodChannel.setMethodCallHandler(new PlatformStringCallback());
+
+    this.reset = new BasicMessageChannel<Object>(
       flutterEngine.getDartExecutor(),
       "dev.flutter.echo.reset",
       StandardMessageCodec.INSTANCE
     );
-    reset.setMessageHandler({
+    this.reset.setMessageHandler({
       onMessage: (_, __) => {
-        this.byteBufferCache = null;
       }
     })
 
-    const basicStandard = new BasicMessageChannel<Object>(
+    this.basicStandard = new BasicMessageChannel<Object>(
       flutterEngine.getDartExecutor(),
       "dev.flutter.echo.basic.standard",
       StandardMessageCodec.INSTANCE
     );
-    basicStandard.setMessageHandler({
+    this.basicStandard.setMessageHandler({
       onMessage: (message, reply) => {
         console.log('xlog, basicStandard ~~')
         reply.reply(message);
       }
     })
 
-    const basicBinary = new BasicMessageChannel<Object>(
+    this.basicBinary = new BasicMessageChannel<Object>(
         flutterEngine.getDartExecutor(),
         "dev.flutter.echo.basic.binary",
         BinaryCodec.INSTANCE_DIRECT
     );
 
-    basicBinary.setMessageHandler({
+    this.basicBinary.setMessageHandler({
       onMessage: (message, reply) => {
         reply.reply(message);
       }
     })
 
-    const taskQueue = flutterEngine.getDartExecutor().makeBackgroundTaskQueue(new TaskQueueOptions());
-    const backgroundStandard = new BasicMessageChannel<Object>(
+    const taskQueue2 = flutterEngine.getDartExecutor().makeBackgroundTaskQueue(new TaskQueueOptions());
+    this.backgroundStandard = new BackgroundBasicMessageChannel<Object>(
         flutterEngine.getDartExecutor(),
         "dev.flutter.echo.background.standard",
         CustomStandardMessageCodec.INSTANCE,
-        taskQueue
+        taskQueue2
     );
 
     @Sendable
@@ -111,6 +141,6 @@ export default class EntryAbility extends FlutterAbility {
         reply.reply(message);
       }
     }
-    backgroundStandard.setMessageHandler(new ArrayBufferMessageHandler)
+    this.backgroundStandard.setMessageHandler(new ArrayBufferMessageHandler)
   }
 }

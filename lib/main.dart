@@ -302,6 +302,14 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String result = "Result will be shown here";
 
+  /// The method channel used to interact with the native platform.
+  final methodChannel = const MethodChannel('test/get_platform_name');
+
+  Future<String?> getPlatformString() async {
+    final str = await methodChannel.invokeMethod<String>('getPlatformString');
+    return str;
+  }
+
   int _stringLength = 512; // list中字符串的长度
   int _itemCounts = 100; // list对象的长度
   int _runCounts = 10; // 测试用例运行次数
@@ -314,10 +322,11 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       result = "Benchmark运行中，请稍候～";
     });
+    String? name = await getPlatformString();
     String newResult =
         await _runTests(_itemCounts, _stringLength, _runCounts);
     setState(() {
-      result = newResult;
+      result = '${name??''}\n\n $newResult';
     });
   }
 
