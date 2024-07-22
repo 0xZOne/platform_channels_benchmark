@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+import { common } from '@kit.AbilityKit';
 import {
   Any,
   ApplicationInfoLoader,
@@ -74,7 +75,13 @@ export default class EntryAbility extends FlutterAbility {
 
     @Sendable
     class PlatformStringCallback implements SendableMethodCallHandler {
-      onMethodCall(call: MethodCall, result: MethodResult): void {
+      onMethodCall(call: MethodCall, result: MethodResult, ...args: Object[]): void {
+        let context = args[0] as common.Context;
+        let txt = args[1] as string;
+        let applicationInfo = ApplicationInfoLoader.load(context);
+        let appContext = context.getApplicationContext();
+        let path: string = appContext.databaseDir;
+        console.log('xlog, in background: isDebugMode = ' + applicationInfo.isDebugMode + ", text: " + txt + ", " + path);
         if (call.method == "getPlatformString") {
           console.log('xlog, in onMethodCall');
           result.success("Hi, there! I'm from ArkUI ^_^ ")
@@ -83,12 +90,14 @@ export default class EntryAbility extends FlutterAbility {
         }
       }
     }
-    const taskQueue1 = flutterEngine.getDartExecutor().makeBackgroundTaskQueue(new TaskQueueOptions());
+    const taskQueue1 = flutterEngine.getDartExecutor().makeBackgroundTaskQueue();
     this.methodChannel = new BackgroundMethodChannel(
       flutterEngine.getDartExecutor(),
       "test/get_platform_name",
       SendableStandardMethodCodec.INSTANCE,
-      taskQueue1
+      taskQueue1,
+      this.context,
+      'another params'
     );
     this.methodChannel.setMethodCallHandler(new PlatformStringCallback());
 
