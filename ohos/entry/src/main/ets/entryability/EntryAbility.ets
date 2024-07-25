@@ -14,6 +14,7 @@
 */
 
 import { common } from '@kit.AbilityKit';
+import { taskpool } from '@kit.ArkTS';
 import {
   Any,
   ApplicationInfoLoader,
@@ -24,18 +25,16 @@ import {
   FlutterAbility,
   FlutterEngine,
   MethodCall,
-  MethodChannel,
   MethodResult,
   SendableMethodCallHandler,
   SendableMessageHandler,
   StandardMessageCodec,
   SendableStandardMessageCodec,
+  TaskPriority,
   TaskQueueOptions,
-  SendableStandardMethodCodec,
-  MethodCallHandler
+  SendableStandardMethodCodec
 } from '@ohos/flutter_ohos';
 import { Reply } from '@ohos/flutter_ohos/src/main/ets/plugin/common/BasicMessageChannel';
-import { MessageHandler } from '@ohos/flutter_ohos/src/main/ets/plugin/common/BasicMessageChannel';
 import { GeneratedPluginRegistrant } from '../plugins/GeneratedPluginRegistrant';
 
 @Sendable
@@ -88,9 +87,43 @@ export default class EntryAbility extends FlutterAbility {
         } else {
           result.notImplemented()
         }
+
+        let taskpoolInfo: taskpool.TaskPoolInfo = taskpool.getTaskPoolInfo();
+        let tid: number = 0;
+        let taskIds: Array<number> = [];
+        let priority: number = 0;
+        let taskId: number = 0;
+        let state: number = 0;
+        let duration: number = 0;
+        let name: string = "";
+        let threadIS = Array.from(taskpoolInfo.threadInfos)
+        for(let threadInfo of threadIS) {
+          tid = threadInfo.tid;
+          if (threadInfo.taskIds != undefined && threadInfo.priority != undefined )
+          {
+            taskIds.length = threadInfo.taskIds.length;
+            priority = threadInfo.priority;
+          }
+          console.info("xlog, taskpool---tid is:" + tid + ", taskIds is:" + taskIds + ", priority is:" + priority);
+        }
+        let taskIS = Array.from(taskpoolInfo.taskInfos)
+        for(let taskInfo of taskIS) {
+          taskId = taskInfo.taskId;
+          state = taskInfo.state;
+          if (taskInfo.duration != undefined )
+          {
+            duration = taskInfo.duration;
+            name = taskInfo.name;
+          }
+          console.info("xlog, taskpool---taskId is:" + taskId + ", state is:" + state + ", duration is:" + duration + ", name is:" + name);
+        }
       }
     }
-    const taskQueue1 = flutterEngine.getDartExecutor().makeBackgroundTaskQueue();
+
+    let option: TaskQueueOptions = new TaskQueueOptions()
+                                      .setIsSerial(false)
+                                      .setPriority(TaskPriority.MEDIUM);
+    const taskQueue1 = flutterEngine.getDartExecutor().makeBackgroundTaskQueue(option);
     this.methodChannel = new BackgroundMethodChannel(
       flutterEngine.getDartExecutor(),
       "test/get_platform_name",
@@ -135,12 +168,10 @@ export default class EntryAbility extends FlutterAbility {
       }
     })
 
-    const taskQueue2 = flutterEngine.getDartExecutor().makeBackgroundTaskQueue(new TaskQueueOptions());
     this.backgroundStandard = new BackgroundBasicMessageChannel<Object>(
         flutterEngine.getDartExecutor(),
         "dev.flutter.echo.background.standard",
-        CustomStandardMessageCodec.INSTANCE,
-        taskQueue2
+        CustomStandardMessageCodec.INSTANCE
     );
 
     @Sendable
