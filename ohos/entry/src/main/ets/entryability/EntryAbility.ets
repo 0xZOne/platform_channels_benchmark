@@ -75,54 +75,27 @@ export default class EntryAbility extends FlutterAbility {
     @Sendable
     class PlatformStringCallback implements SendableMethodCallHandler {
       onMethodCall(call: MethodCall, result: MethodResult, ...args: Object[]): void {
+        console.log(`xlog, #onMethodCall ~~, ${args}, length=${args.length}`);
         let context = args[0] as common.Context;
         let txt = args[1] as string;
+        console.log(`xlog, #onMethodCall, txt=${txt}, context=${context}`);
         let applicationInfo = ApplicationInfoLoader.load(context);
         let appContext = context.getApplicationContext();
         let path: string = appContext.databaseDir;
         console.log('xlog, in background: isDebugMode = ' + applicationInfo.isDebugMode + ", text: " + txt + ", " + path);
+
         if (call.method == "getPlatformString") {
-          console.log('xlog, in onMethodCall');
           result.success("Hi, there! I'm from ArkUI ^_^ ")
         } else {
           result.notImplemented()
-        }
-
-        let taskpoolInfo: taskpool.TaskPoolInfo = taskpool.getTaskPoolInfo();
-        let tid: number = 0;
-        let taskIds: Array<number> = [];
-        let priority: number = 0;
-        let taskId: number = 0;
-        let state: number = 0;
-        let duration: number = 0;
-        let name: string = "";
-        let threadIS = Array.from(taskpoolInfo.threadInfos)
-        for(let threadInfo of threadIS) {
-          tid = threadInfo.tid;
-          if (threadInfo.taskIds != undefined && threadInfo.priority != undefined )
-          {
-            taskIds.length = threadInfo.taskIds.length;
-            priority = threadInfo.priority;
-          }
-          console.info("xlog, taskpool---tid is:" + tid + ", taskIds is:" + taskIds + ", priority is:" + priority);
-        }
-        let taskIS = Array.from(taskpoolInfo.taskInfos)
-        for(let taskInfo of taskIS) {
-          taskId = taskInfo.taskId;
-          state = taskInfo.state;
-          if (taskInfo.duration != undefined )
-          {
-            duration = taskInfo.duration;
-            name = taskInfo.name;
-          }
-          console.info("xlog, taskpool---taskId is:" + taskId + ", state is:" + state + ", duration is:" + duration + ", name is:" + name);
         }
       }
     }
 
     let option: TaskQueueOptions = new TaskQueueOptions()
-                                      .setIsSerial(false)
-                                      .setPriority(TaskPriority.MEDIUM);
+                                      .setIsSerial(true)
+                                      .setSingleThreadMode(true)
+                                      .setPriority(TaskPriority.HIGH);
     const taskQueue1 = flutterEngine.getDartExecutor().makeBackgroundTaskQueue(option);
     this.methodChannel = new BackgroundMethodChannel(
       flutterEngine.getDartExecutor(),
