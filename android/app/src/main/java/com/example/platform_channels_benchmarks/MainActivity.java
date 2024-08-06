@@ -7,6 +7,10 @@ import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.BasicMessageChannel;
 import io.flutter.plugin.common.BinaryCodec;
 import io.flutter.plugin.common.StandardMessageCodec;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
+import io.flutter.plugin.common.MethodChannel.Result;
 
 import java.nio.ByteBuffer;
 
@@ -73,6 +77,18 @@ public class MainActivity extends FlutterActivity {
                 flutterEngine.getDartExecutor().makeBackgroundTaskQueue()
         );
         backgroundStandard.setMessageHandler((message, reply) -> reply.reply(message));
+
+        final MethodChannel channel = new MethodChannel(flutterEngine.getDartExecutor(), "test/get_platform_name");
+        channel.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
+            @Override
+            public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+                if (call.method.equals("getPlatformString")) {
+                    result.success("Hi, there! I'm from Android. ^^");
+                } else {
+                    result.notImplemented();
+                }
+            }
+        });
 
         super.configureFlutterEngine(flutterEngine);
     }
